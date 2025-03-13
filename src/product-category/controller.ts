@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import type { ProductCategory } from "../types/product-category";
+import type { ProductCategory } from "./types";
 
 let productCategories: ProductCategory[] = [];
 let nextProductId = 1;

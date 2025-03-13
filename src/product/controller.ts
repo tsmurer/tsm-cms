@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { Product } from '../types/product';
+import type { Product } from './product';
 
 let products: Product[] = [];
 let nextProductId = 1;

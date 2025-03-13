@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { createProductCategory, deleteProductCategory, getProductCategories, getProductCategory, updateProductCategory } from "../controllers/product-category";
+import { createProductCategory, deleteProductCategory, getProductCategories, getProductCategory, updateProductCategory } from "./controller";
 
 const productCategoryRouter = new Hono();
 
