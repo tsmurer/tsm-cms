@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import productRouter from './product/routes';
-import productCategoryRouter from './product-category/routes';
+import productRouter from './src/product/routes';
+import productCategoryRouter from './src/product-category/routes';
 
 export const app = new Hono();
 
