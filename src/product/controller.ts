@@ -1,72 +1,82 @@
+// src/product/controller.ts
 import type { Context } from 'hono';
-import type { Product } from './product';
+import productService from './service';
 
-let products: Product[] = [];
-let nextProductId = 1;
-
+// Get all products
 export async function getProducts(c: Context) {
+  try {
+    const products = await productService.getAllProducts();
     return c.json(products);
-}
-
-export async function createProduct(c: Context) {
-  const productData = await c.req.json<Product>();
-
-  if (!productData) {
-    return c.json({ message: 'Invalid product data' }, 400);
+  } catch (error) {
+    return c.json({ message: 'Failed to fetch products', details: error }, 500);
   }
-
-  const newProduct: Product = {
-    ...productData,
-    id: nextProductId++,
-    active: true
-  };
-
-  products.push(newProduct);
-
-  return c.json(newProduct, 201);
 }
 
-export async function getProduct(c:Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
+// Create a new product
+export async function createProduct(c: Context) {
+  try {
+    const productData = await c.req.json();
+    const newProduct = await productService.createProduct(productData);
+    return c.json(newProduct, 201);
+  } catch (error) {
+    return c.json({ message: 'Failed to create product', details: error }, 400);
+  }
+}
+
+// Get a product by ID
+export async function getProduct(c: Context) {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
-    const product = products.find((product)=> product.id === id);
-    if (!product){
-        return c.json({message: "Product not found"}, 404);
+
+    const product = await productService.getProductById(id);
+    if (!product) {
+      return c.json({ message: 'Product not found' }, 404);
     }
+
     return c.json(product);
+  } catch (error) {
+    return c.json({ message: 'Failed to fetch product', details: error }, 500);
+  }
 }
 
-export async function updateProduct(c: Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
+// Update a product
+export async function updateProduct(c: Context) {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
-    const productIndex = products.findIndex((product)=> product.id === id);
-    if (productIndex === -1){
-        return c.json({message: "Product not found"}, 404);
-    }
-    const productData = await c.req.json<Product>();
-    if (!productData){
-        return c.json({ message: 'Invalid product data' }, 400);
-    }
-    products[productIndex] = {
-        ...productData,
-        id: id,
-    }
-    return c.json(products[productIndex], 200);
 
+    const productData = await c.req.json();
+    const updatedProduct = await productService.updateProduct(id, productData);
+    if (!updatedProduct) {
+      return c.json({ message: 'Product not found' }, 404);
+    }
+
+    return c.json(updatedProduct, 200);
+  } catch (error) {
+    return c.json({ message: 'Failed to update product', details: error }, 400);
+  }
 }
-export async function deleteProduct(c:Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
+
+// Delete a product
+export async function deleteProduct(c: Context) {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
-    const productIndex = products.findIndex((product)=> product.id === id);
-    if (productIndex === -1){
-        return c.json({message: "Product not found"}, 404);
+
+    const success = await productService.deleteProduct(id);
+    if (!success) {
+      return c.json({ message: 'Product not found' }, 404);
     }
-    products.splice(productIndex, 1);
-    return c.json({message: "Product deleted"}, 200);
+
+    return c.json({ message: 'Product deleted' }, 200);
+  } catch (error) {
+    return c.json({ message: 'Failed to delete product', details: error }, 500);
+  }
 }

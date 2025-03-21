@@ -1,6 +1,10 @@
 import { Hono } from 'hono';
 import productRouter from './src/product/routes';
 import productCategoryRouter from './src/product-category/routes';
+import { initializeDatabase } from './src/db/init';
+
+
+initializeDatabase();
 
 export const app = new Hono();
 
