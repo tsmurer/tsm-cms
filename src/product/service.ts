@@ -1,7 +1,7 @@
 import type { Database } from 'bun:sqlite';
 import type { Product, ProductDB } from './types';
 
-export const createProductService = (db: Database) => {
+export const ProductService = (db: Database) => {
   const mapProductDBToProduct = (productDB: ProductDB, category: any, suggestedPairings: any[]): Product => {
     return {
       id: productDB.id,
@@ -157,4 +157,4 @@ export const createProductService = (db: Database) => {
 };
 
 import { db } from '../db/index';
-export default createProductService(db);
+export default ProductService(db);

@@ -1,29 +1,25 @@
-// src/product/controller.ts
 import type { Context } from 'hono';
 import productService from './service';
 
-// Get all products
 export async function getProducts(c: Context) {
   try {
     const products = await productService.getAllProducts();
-    return c.json(products);
+    return c.json(products); 
   } catch (error) {
-    return c.json({ message: 'Failed to fetch products', details: error }, 500);
+    return c.json({ message: 'Failed to fetch products', details: error }, 500); 
   }
 }
 
-// Create a new product
 export async function createProduct(c: Context) {
   try {
     const productData = await c.req.json();
     const newProduct = await productService.createProduct(productData);
-    return c.json(newProduct, 201);
+    return c.json(newProduct, 201); 
   } catch (error) {
     return c.json({ message: 'Failed to create product', details: error }, 400);
   }
 }
 
-// Get a product by ID
 export async function getProduct(c: Context) {
   try {
     const id = parseInt(c.req.param('id'));
@@ -42,7 +38,6 @@ export async function getProduct(c: Context) {
   }
 }
 
-// Update a product
 export async function updateProduct(c: Context) {
   try {
     const id = parseInt(c.req.param('id'));
@@ -62,7 +57,6 @@ export async function updateProduct(c: Context) {
   }
 }
 
-// Delete a product
 export async function deleteProduct(c: Context) {
   try {
     const id = parseInt(c.req.param('id'));

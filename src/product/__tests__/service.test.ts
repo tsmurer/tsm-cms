@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
-import { createProductService } from '../service';
+import { ProductService } from '../service';
 import { Database } from 'bun:sqlite';
 
 const db = new Database(':memory:'); 
 
-const productService = createProductService(db);
+const productService = ProductService(db);
 
 const initializeDatabase = () => {
   db.run(`
@@ -35,8 +35,6 @@ const initializeDatabase = () => {
       FOREIGN KEY (paired_product_id) REFERENCES products(id)
     )
   `);
-
-  console.log('Database initialized successfully!');
 };
 
 beforeEach(() => {
@@ -145,15 +143,11 @@ describe('Product Service', () => {
       VALUES (1, 'Cabernet Sauvignon', 'A rich red wine', 1, 1)
     `);
   
-    console.log('Categories:', db.prepare('SELECT * FROM categories').all());
-    console.log('Products:', db.prepare('SELECT * FROM products').all());
   
     const categoryCheck = db.prepare('SELECT * FROM categories WHERE id = ?').get(1);
-    console.log('Category Check:', categoryCheck);
     expect(categoryCheck).toBeDefined();
   
     const productCheck = db.prepare('SELECT * FROM products WHERE id = ?').get(1);
-    console.log('Product Check:', productCheck);
     expect(productCheck).toBeDefined();
   
     const updatedProduct = await productService.updateProduct(1, {
