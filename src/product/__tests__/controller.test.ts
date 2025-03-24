@@ -8,7 +8,6 @@ import {
   deleteProduct,
 } from '../controller';
 
-// Mock the productService
 const mockProductService = {
   getAllProducts: mock(() => Promise.resolve([{ id: 1, name: 'Product 1' }])),
   createProduct: mock((data: any) => Promise.resolve({ id: 1, ...data })),

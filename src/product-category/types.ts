@@ -7,5 +7,5 @@ export interface ProductCategory {
 export interface ProductCategoryDB {
     id: number
     name: string
-    description: string
+    description?: string
   }

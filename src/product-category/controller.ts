@@ -1,71 +1,83 @@
-import type { Context } from "hono";
-import type { ProductCategory } from "./types";
+import type { Context } from 'hono';
+import productCategoryService from './service';
+import type { ProductCategory } from './types';
 
-let productCategories: ProductCategory[] = [];
-let nextProductId = 1;
+export const getProductCategories = async (c: Context) => {
+  try {
+    const categories = await productCategoryService.getAllProductCategories();
+    return c.json(categories);
+  } catch (error) {
+    console.error('Failed to fetch product categories:', error);
+    return c.json({ message: 'Failed to fetch product categories', details: error }, 500);
+  }
+};
 
-export async function getProductCategories(c: Context) {
-    return c.json(productCategories)
-}
-
-export async function createProductCategory(c: Context) {
-    const productCategoryData = await c.req.json<ProductCategory>();
-
-    if (!productCategoryData) {
-        return c.json({ message: 'Invalid product data' }, 400);
+export const getProductCategory = async (c: Context) => {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
 
-    const newProductCategory: ProductCategory = {
-        ...productCategoryData,
-        id: nextProductId++
+    const category = await productCategoryService.getProductCategoryById(id);
+    if (!category) {
+      return c.json({ message: 'Product category not found' }, 404);
     }
 
-    productCategories.push(newProductCategory);
-    return c.json(newProductCategory, 201);
-}
+    return c.json(category);
+  } catch (error) {
+    console.error(`Failed to fetch product category with id ${c.req.param('id')}:`, error);
+    return c.json({ message: 'Failed to fetch product category', details: error }, 500);
+  }
+};
 
+export const createProductCategory = async (c: Context) => {
+  try {
+    const categoryData: Omit<ProductCategory, 'id'> = await c.req.json();
+    const newCategory = await productCategoryService.createProductCategory(categoryData);
+    return c.json(newCategory, 201);
+  } catch (error) {
+    console.error('Failed to create product category:', error);
+    return c.json({ message: 'Failed to create product category', details: error }, 400);
+  }
+};
 
-export async function getProductCategory(c:Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
+export const updateProductCategory = async (c: Context) => {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
-    const productCategory = productCategories.find((productCategory)=> productCategory.id === id);
-    if (!productCategory){
-        return c.json({message: "Product Category not found"}, 404);
-    }
-    return c.json(productCategory);
-}
 
-export async function updateProductCategory(c: Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
-    }
-    const productCategoryIndex = productCategories.findIndex((productCategory)=> productCategory.id === id);
-    if (productCategoryIndex === -1){
-        return c.json({message: "Product not found"}, 404);
-    }
-    const productCategoryData = await c.req.json<ProductCategory>();
-    if (!productCategoryData){
-        return c.json({ message: 'Invalid product data' }, 400);
-    }
-    productCategories[productCategoryIndex] = {
-        ...productCategoryData,
-        id: id,
-    }
-    return c.json(productCategories[productCategoryIndex], 200);
+    const categoryData: Omit<ProductCategory, 'id'> = await c.req.json();
+    const updatedCategory = await productCategoryService.updateProductCategory(id, categoryData);
 
-}
-export async function deleteProductCategory(c:Context){
-    const id = parseInt(c.req.param("id"));
-    if (isNaN(id)){
-        return c.json({message: "Invalid ID"}, 400);
+    if (!updatedCategory) {
+      return c.json({ message: 'Product category not found' }, 404);
     }
-    const productCategoryIndex = productCategories.findIndex((productCategory)=> productCategory.id === id);
-    if (productCategoryIndex === -1){
-        return c.json({message: "Product Category not found"}, 404);
+
+    return c.json(updatedCategory);
+  } catch (error) {
+    console.error(`Failed to update product category with id ${c.req.param('id')}:`, error);
+    return c.json({ message: 'Failed to update product category', details: error }, 400);
+  }
+};
+
+export const deleteProductCategory = async (c: Context) => {
+  try {
+    const id = parseInt(c.req.param('id'));
+    if (isNaN(id)) {
+      return c.json({ message: 'Invalid ID' }, 400);
     }
-    productCategories.splice(productCategoryIndex, 1);
-    return c.json({message: "Product Category deleted"}, 200);
-}
+
+    const success = await productCategoryService.deleteProductCategory(id);
+    if (!success) {
+      return c.json({ message: 'Product category not found' }, 404);
+    }
+
+    return c.json({ message: 'Product category deleted' }, 200);
+  } catch (error) {
+    console.error(`Failed to delete product category with id ${c.req.param('id')}:`, error);
+    return c.json({ message: 'Failed to delete product category', details: error }, 500);
+  }
+};
